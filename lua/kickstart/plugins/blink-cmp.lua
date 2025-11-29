@@ -31,6 +31,7 @@ return {
         opts = {},
       },
       'folke/lazydev.nvim',
+      -- 'Kaiser-Yang/blink-cmp-avante', -- TODO uncomment when actually integrating avante
     },
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
@@ -72,13 +73,33 @@ return {
       completion = {
         -- By default, you may press `<c-space>` to show the documentation.
         -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        -- documentation = { auto_show = false, auto_show_delay_ms = 500 },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 0,
+          window = {
+            border = "rounded"
+          }
+        },
+        menu = {
+          border = "rounded",
+          -- winhighlight = 'Pmenu:Pmenu,PmenuBorder:PmenuBorder,PmenuBorder:CmpDocBorder',
+        }
+       
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev' },
+        default = { 'lsp', 'path', 'snippets', 'lazydev' }, -- 'avante' },
         providers = {
           lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+          -- TODO uncomment below when integrating avante
+          -- avante = {
+          --   module = 'blink-cmp-avante',
+          --   name = 'Avante',
+          --   opts = {
+          --       -- options for blink-cmp-avante
+          --   }
+          -- },
         },
       },
 
@@ -94,8 +115,24 @@ return {
       fuzzy = { implementation = 'lua' },
 
       -- Shows a signature help window while you type arguments for a function
-      signature = { enabled = true },
+      signature = { enabled = true, window = { border = 'rounded' } },
     },
+    config = function (_, opts)
+      local blink = require("blink.cmp")
+      blink.setup(opts)
+
+      -- Sync highlight groups with Telescope’s
+      local highlight = require("custom.utils.highlight")
+
+
+      highlight.link_highlight_group("BlinkCmpMenu", "TelescopeNormal")
+      highlight.link_highlight_group("BlinkCmpMenuBorder", "TelescopeBorder")
+      highlight.link_highlight_group("BlinkCmpDoc", "TelescopeNormal")
+      highlight.link_highlight_group("BlinkCmpDocBorder", "TelescopeBorder")
+      highlight.link_highlight_group("BlinkCmpDocSeparator", "TelescopeBorder")
+      highlight.link_highlight_group("BlinkCmpSignatureHelp", "TelescopeNormal")
+      highlight.link_highlight_group("BlinkCmpSignatureHelpBorder", "TelescopeBorder")
+    end
   },
 }
 -- vim: ts=2 sts=2 sw=2 et
